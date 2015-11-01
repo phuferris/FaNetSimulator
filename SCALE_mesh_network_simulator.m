@@ -40,6 +40,9 @@ sentEvents = 0;
 forwardedEvents = 0;
 totalReceived = 0;
 
+Nodes_list_FaNet = [];
+Events_list = [];
+
 
 
 Nodes_coordinates = zeros(numNodes, 2);
@@ -56,6 +59,15 @@ for k=1:numNodes
     Nodes_list(k).sent_events = 0;
     Nodes_list(k).relayed_events = 0;
     Nodes_list(k).received_events = 0;
+    
+    % For FaNet
+    Nodes_list(k).parents = [];
+    Nodes_list(k).children = [];
+    Nodes_list(k).level = -9999;
+    Nodes_list(k).offers = [];
+    Nodes_list(k).offerings = [];
+    Nodes_list(k).primary_tree_id = 0;
+    Nodes_list(k).primary_parent_id = 0;
     
 
     Nodes_list(k).buffer = [];
@@ -95,15 +107,12 @@ for k=1:numNodes
     end    
 end
 
+% Clone Nodes_list to Nodes_list_Fanet for later use
+Nodes_list_FaNet = Nodes_list;
+
 % Display initial network topology
-disp(sprintf('\n Network Initial Tepology\n'));
-scale_display_nodes_info(Nodes_list);
-
-% disp(sprintf('Before calling drawing \n')); 
-% disp(Nodes_cooordinates);
-
-% Not allow to pass a matrix to  function
-%scale_draw_network_topology(Nodes_list, APs_list, maxx, maxy);
+%disp(sprintf('\n Network Initial Tepology\n'));
+%scale_display_nodes_info(Nodes_list);
 
 % Initial broadcast join messages
 Nodes_list = scale_initial_broadcast_join(Nodes_list);
@@ -115,15 +124,13 @@ scale_draw_network_topology(Nodes_list, APs_list, maxx, maxy); % draw network wi
 
 %Generate initial events which could occur within the SCALE network
 % within 1 hour
-
-Events_list = [];
 Events_list = scale_generate_initial_events(Events_list, numNodes, maxEvents, eventsPeriod);
 
 % Now, it is time to run network topology and generate events to 
 % be sent to its access points, every while loop will count as 
 % 1 second of sensors' clock.
 
-max_run_time = 100;
+max_run_time = 500;
 
 % ################### Begin of all active schema ####################
 
@@ -149,10 +156,22 @@ NA=setdiff([Nodes_list.id],A);
 ActPowerOvertime(1,:)=powerOvertime(A(1),:);
 ActPowerOvertime(2,:)=powerOvertime(A(numel(A)),:);
 %nodes without APs
-%ActPowerOvertime(3,:)=powerOvertime(NA(1),:);
-%ActPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
+ActPowerOvertime(3,:)=powerOvertime(NA(1),:);
+ActPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
 
 % ################### End of all active schema #####################
+
+
+% GOOD STUFF HERE .... %
+
+
+Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
+
+% FaNetPower = scale_run_FatNet(Nodes_list_FaNet, Events_list, max_run_time);
+
+
+disp(sprintf('Stop here'));
+
 
 % ############### Begin of random sleeping schema ##################
 

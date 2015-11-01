@@ -26,7 +26,20 @@ global bufferSize;
 global wakeup_power;
 global active_sleep_periods;
 
+global max_children;
+global max_parent;
+global max_height;
+global max_trees;
+
+global fatnet_offer_message_size;
+global fatnet_join_message_size;
+
 %=======================================
+
+max_children = 3;
+max_parent = 3;
+max_height = 5;
+max_trees = 3;
 
 numNodes = 25;
 numAPs = 25;
@@ -35,6 +48,9 @@ wireless_range = 70; % 100 feets
 
 broadcast_message_size = 0.1; % Mb
 beacon_message_size = 0.3; % Mb
+
+fatnet_offer_message_size = 0.1; % Mb
+fatnet_join_message_size = 0.05; % Mb
 
 sleeping_power = 0.005; % mAh per sec
 active_power = 0.05; % mAh per sec
