@@ -169,6 +169,7 @@ Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
 
 % FaNetPower = scale_run_FatNet(Nodes_list_FaNet, Events_list, max_run_time);
 
+scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
 
 disp(sprintf('Stop here'));
 

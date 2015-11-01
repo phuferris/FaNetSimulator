@@ -23,7 +23,7 @@ end
 for k=1:numel(APs_list)
 % plot wireless access points
 h2=plot(APs_list(k).x_coordinate,APs_list(k).y_coordinate, 'b.', 'MarkerSize', 40);
-text(APs_list(k).x_coordinate+5, APs_list(k).y_coordinate+0.1, num2str(k),'Color','g');
+text(APs_list(k).x_coordinate+5, APs_list(k).y_coordinate+0.1, ['AP-' num2str(k)],'Color','b');
 %connect access points to nodes
 plot([APs_list(k).x_coordinate, Nodes_list(APs_list(k).connect_node_id).x_coordinate], [APs_list(k).y_coordinate, Nodes_list(APs_list(k).connect_node_id).y_coordinate], 'b-');
 end
