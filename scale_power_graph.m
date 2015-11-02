@@ -1,7 +1,7 @@
 function [TotPower]=scale_power_graph(Nodes_list,protocol)
 global initial_power;
 figure;
-b=bar([Nodes_list.id],[Nodes_list.power]);
+b=bar([Nodes_list.id],[Nodes_list.power], 'g');
 set(gca, 'XTick', [Nodes_list.id]);
 
 title(['SCALE Power Level ', protocol]);

@@ -15,6 +15,12 @@ function [Nodes_list] = scale_send_to_all_neighbors(Nodes_list, event)
     for k=1:numel(neighbors)
         neighbor_id = neighbors(k).id;
         
+        % receiving node get its own event
+        if event.originator == event.source
+            Nodes_list(event.source).duplicated_events =  Nodes_list(event.source).duplicated_events + 1;
+            continue;
+        end
+        
         %record total replayed_events
         Nodes_list(event.source).relayed_events = Nodes_list(event.source).relayed_events + 1; 
         
@@ -22,30 +28,34 @@ function [Nodes_list] = scale_send_to_all_neighbors(Nodes_list, event)
             if Nodes_list(neighbor_id).status == 1
 
                % record total received events
-               Nodes_list(neighbor_id).received_events = Nodes_list(neighbor_id).received_events + 1; 
-
-               % Drop the message if the node is its originator
-               if event.originator == neighbor_id
-                   continue; 
+               Nodes_list(neighbor_id).received_events = Nodes_list(neighbor_id).received_events + 1;
+               
+               %Check to see if the node has received this event
+               if ~isempty(Nodes_list(neighbor_id).recieved_events_queue)
+                   event_queue_index = find([Nodes_list(neighbor_id).recieved_events_queue(:).id] == event.id, 1);
+                   if(isempty(event_queue_index)) 
+                       Nodes_list(neighbor_id).recieved_events_queue = [Nodes_list(neighbor_id).recieved_events_queue, event];
+                   else
+                       Nodes_list(neighbor_id).duplicated_events =  Nodes_list(neighbor_id).duplicated_events + 1; 
+                   end
+               else
+                   Nodes_list(neighbor_id).recieved_events_queue = [Nodes_list(neighbor_id).recieved_events_queue, event];
                end
-
-               % add the event into the neighbor's buffer
-               event.source = neighbor_id;
 
                action = [];
                action.type = 'receiving';
                action.packet_size = event.size;
                Nodes_list(neighbor_id).power = scale_power_consumption(Nodes_list(neighbor_id).power, action);
 
-               disp(sprintf('NEIGHBOR Node ID# %d sending forwarded event with message id# %d', neighbor_id, event.id));
-
+              
                % record total replayed events
                Nodes_list(neighbor_id).relayed_events = Nodes_list(neighbor_id).relayed_events + 1; 
     
+               % add the event into the neighbor's buffer
+               event.source = neighbor_id;
                event.ttl = event.ttl - 1;
                Nodes_list = scale_send_event(Nodes_list, event); 
             else
-               disp(sprintf('NEIGHBOR Node ID# %d BUFFERING forwarded event with message id# %d', neighbor_id, event.id));
                Nodes_list(neighbor_id).buffer = [Nodes_list(neighbor_id).buffer, event];
             end
         end

@@ -31,8 +31,6 @@ distanceWeight = 0.05;
 
 prob_sleeping = 0.6;
 
-Nodes_list = [];
-
 sentStatistics = [];
 
 APs_list = [];
@@ -40,7 +38,7 @@ sentEvents = 0;
 forwardedEvents = 0;
 totalReceived = 0;
 
-Nodes_list_FaNet = [];
+Nodes_list = [];
 Events_list = [];
 
 
@@ -59,6 +57,8 @@ for k=1:numNodes
     Nodes_list(k).sent_events = 0;
     Nodes_list(k).relayed_events = 0;
     Nodes_list(k).received_events = 0;
+    Nodes_list(k).duplicated_events = 0;
+    Nodes_list(k).recieved_events_queue = [];
     
     % For FaNet
     Nodes_list(k).parents = [];
@@ -116,10 +116,6 @@ Nodes_list_FaNet = Nodes_list;
 
 % Initial broadcast join messages
 Nodes_list = scale_initial_broadcast_join(Nodes_list);
-
-% Display nodes' info after running network initialization
-disp(sprintf('\n New Network Information after Initialization\n'));
-scale_display_nodes_info(Nodes_list);
 scale_draw_network_topology(Nodes_list, APs_list, maxx, maxy); % draw network with neighbor connections
 
 %Generate initial events which could occur within the SCALE network
@@ -130,12 +126,12 @@ Events_list = scale_generate_initial_events(Events_list, numNodes, maxEvents, ev
 % be sent to its access points, every while loop will count as 
 % 1 second of sensors' clock.
 
-max_run_time = 500;
+max_run_time = 30;
 
 % ################### Begin of all active schema ####################
 
 % First sleeping schema: every node stay awake
-ActPower = scale_run_all_active(Nodes_list, Events_list, max_run_time);
+[Nodes_list, ActPower, events_graph_height] = scale_run_all_active(Nodes_list, Events_list, max_run_time);
 ActLife = lifeTime;
 ActDuty = 100;
 
@@ -167,12 +163,15 @@ ActPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
 
 Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
 
-% FaNetPower = scale_run_FatNet(Nodes_list_FaNet, Events_list, max_run_time);
-
 scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
 
-disp(sprintf('Stop here'));
+% Run the FaNet data dissemination schema here
+[Nodes_list_FaNet, FaNetPower, events_graph_height] = scale_run_FaNet(Nodes_list_FaNet, Events_list, max_run_time, events_graph_height);
 
+
+scale_events_comparison_graph(Nodes_list, Nodes_list_FaNet, 'duplicated', 'One Hop Broadcast and FatNet Disseminated Duplicated Messages Comparison');
+
+scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet);
 
 % ############### Begin of random sleeping schema ##################
 

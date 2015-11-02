@@ -98,7 +98,6 @@ while 1
            % packets to the access point
            current_active_neighbors = scale_check_active_neighbors(Nodes_list(k).neighbors);
            
-           disp(sprintf('CUSTOM CURRENT NEIGHBORS %d', current_active_neighbors));
             
            % Check to see if the node has send beacon message to its
            % neighbors to info their update statas
@@ -126,8 +125,6 @@ while 1
         
            % Check to see if it has any any event from the event queue
            if(~isempty(event) && event.instant == clock && event.source == k)
-               disp(sprintf('Node ID %d status %d', k, Nodes_list(k).status));
-               disp(sprintf('Event instant %d, current clock %d, event source %d', event.instant, clock, event.source));
                %disp(sprintf('Found 1 event for node #%d, Sent the event to its destination', k));
                %disp(event);  
                
@@ -137,13 +134,7 @@ while 1
 
            else % Check to see if the node has any event being buffered
                if(~isempty(Nodes_list(k).buffer))
-                   buffered_event = Nodes_list(k).buffer(1); % pick to the oldest event 
-                   
-                   disp(sprintf('BUFFER Node ID %d status %d', k, Nodes_list(k).status));
-                   disp(sprintf('Buffer Event instant %d, current clock %d, buffer event source %d', buffered_event.instant, clock, buffered_event.source));
-                   %disp(sprintf('BUFFER Found 1 event for node #%d, Sent the event to its destination', k));
-                   
-                   %disp(buffered_event);   
+                   buffered_event = Nodes_list(k).buffer(1); % pick to the oldest event   
 
                    Nodes_list(k).buffer(1) = []; % remove sent event from buffer
                    Nodes_list = scale_send_event(Nodes_list, buffered_event);
@@ -228,9 +219,7 @@ while 1
                trans = [prob_active (1-prob_active); (1-prob_sleeping), prob_sleeping];
                [state, seq] = scale_marko_chain_state_transition(trans);
                
-               time = active_sleep_periods(state, seq);
-               
-               %disp(sprintf('Waking up, Node ID# %d, state: %d, time in state: %d, seq# %d', k, state, time, seq)); 
+               time = active_sleep_periods(state, seq);        
                
                % Node is waking up, changing from
                % sleeping state to active stage

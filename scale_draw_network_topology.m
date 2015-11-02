@@ -11,7 +11,7 @@ box on;
 for k=1:numel(Nodes_list)
     % plot wireless sensor nodes  
     h1=plot(Nodes_list(k).x_coordinate,Nodes_list(k).y_coordinate,'k.', 'MarkerSize', 30);
-    text(Nodes_list(k).x_coordinate+5, Nodes_list(k).y_coordinate+0.1, num2str(k),'Color','r');
+    text(Nodes_list(k).x_coordinate+5, Nodes_list(k).y_coordinate+0.1, num2str(k));
     %connect neighbors
 if (~isempty(Nodes_list(k).neighbors))
     for n=1:numel(Nodes_list(k).neighbors)
@@ -30,7 +30,7 @@ end
 
 hold off;
 
-title('SCALE Network Topology');
+title('One Hop Broadcast Data Dissemination Network Topology');
     
 xlabel('X Coordinate');
 ylabel('Y Coordinate');

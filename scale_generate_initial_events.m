@@ -8,6 +8,7 @@ while(i < numEvents)
     event.id = i;
     event.ttl = 5;
     event.source = round(rand()*numNodes) - 1;
+    event.from_node = event.source;
     event.originator = event.source;
     event.destination = 99999; % address of remote server on the cloud
     event.instant = ceil(rand()*eventsPeriod);
