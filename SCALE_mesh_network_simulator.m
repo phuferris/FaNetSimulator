@@ -152,6 +152,9 @@ scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet, ...
 
 scale_total_power_graph(numel(Nodes_list),'One Hop Broadcast', 'FaNet Dissemination Schema', ActPower, FaNetPower);
 
+scale_draw_event_spreading(Nodes_list, maxx, maxy, 'One Hop Dissemination');
+scale_draw_event_spreading(Nodes_list_FaNet, maxx, maxy, 'FaNet Dissemination');
+
 disp('End of story here');
 
 %{
