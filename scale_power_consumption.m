@@ -43,8 +43,6 @@ function [node_power] = scale_power_consumption(node_power, action)
         power_required = wakeup_power;
     end
     
-    %disp(sprintf('Node power %f, required_power %f', node_power, power_required));
-    
     if(node_power > power_required)
         node_power =  node_power - power_required;     
     else

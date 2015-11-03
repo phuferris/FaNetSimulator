@@ -4,7 +4,7 @@ figure;
 b=bar([Nodes_list.id],[Nodes_list.power], 'g');
 set(gca, 'XTick', [Nodes_list.id]);
 
-title(['SCALE Power Level ', protocol]);
+title(['Node Bettery Power Level ', protocol], 'FontSize', 20);
     
 xlabel('Node ID');
 ylabel('Power (mAh)');
@@ -14,15 +14,15 @@ ylabel('Power (mAh)');
 
 x = get(b,'XData');
 y = get(b,'YData');
-ygap =2;  % vertical gap between the bar and label
+ygap = 3;  % vertical gap between the bar and label
+xgap = 1;
 
-
-ylim([ 0, initial_power+500]);% Increase y limit for labels
-TotPower=0;
+ylim([ 0, initial_power + 500]);% Increase y limit for labels
+TotPower = 0.00;
     for n = 1:length(x)  
             xpos = x(n);        
             ypos = y(n) + ygap; 
-            TotPower= TotPower+Nodes_list(n).power;
+            TotPower= TotPower + round(Nodes_list(n).power, 2);
             percent=floor(Nodes_list(n).power/initial_power*100);
             text(xpos,ypos,[num2str(percent), '%'],'HorizontalAlignment','left','Rotation',90);        
     end

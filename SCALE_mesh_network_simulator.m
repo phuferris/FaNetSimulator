@@ -15,10 +15,7 @@ global APs_list;
 global sentEvents;
 global forwardedEvents;
 global totalReceived;
-global lifeTime;
-global activeTime;
 global timeInterval;
-global powerOvertime;
 
 global powerWeight;
 global neighborWeight;
@@ -82,7 +79,7 @@ for k=1:numNodes
     
     AP_Connections = [];
     random_AP = mod(round(rand(1)*100), k);
-    if(random_AP == 0 || random_AP == 1 || random_AP == 2)
+    if(random_AP == 0 || random_AP == 1)
         issid = issid + 1;
         
          % Add new Access Point into APs_list
@@ -126,39 +123,14 @@ Events_list = scale_generate_initial_events(Events_list, numNodes, maxEvents, ev
 % be sent to its access points, every while loop will count as 
 % 1 second of sensors' clock.
 
-max_run_time = 30;
+max_run_time = 50;
 
 % ################### Begin of all active schema ####################
 
 % First sleeping schema: every node stay awake
 [Nodes_list, ActPower, events_graph_height] = scale_run_all_active(Nodes_list, Events_list, max_run_time);
-ActLife = lifeTime;
-ActDuty = 100;
 
-
-scale_get_events_arrived_at_APs();
-sentStatistics.act_sentEvent = sentEvents;
-sentStatistics.act_forwardedEvents = forwardedEvents;
-sentStatistics.act_totalReceived = totalReceived;
-
-if (ActLife==0)
- ActLife= max_run_time;
-end
-
-%prepare for power over time plot
-A=[APs_list.connect_node_id];
-NA=setdiff([Nodes_list.id],A);
-%nodes with APs
-ActPowerOvertime(1,:)=powerOvertime(A(1),:);
-ActPowerOvertime(2,:)=powerOvertime(A(numel(A)),:);
-%nodes without APs
-ActPowerOvertime(3,:)=powerOvertime(NA(1),:);
-ActPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
-
-% ################### End of all active schema #####################
-
-
-% GOOD STUFF HERE .... %
+broadcast_AP_total_received_events = scale_get_events_arrived_at_APs(APs_list);
 
 
 Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
@@ -168,13 +140,21 @@ scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
 % Run the FaNet data dissemination schema here
 [Nodes_list_FaNet, FaNetPower, events_graph_height] = scale_run_FaNet(Nodes_list_FaNet, Events_list, max_run_time, events_graph_height);
 
+FaNet_AP_total_received_events = scale_get_events_arrived_at_APs(APs_list);
 
+% Display simulation data
 scale_events_comparison_graph(Nodes_list, Nodes_list_FaNet, 'duplicated', 'One Hop Broadcast and FatNet Disseminated Duplicated Messages Comparison');
 
-scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet);
+scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet, ...
+                                    broadcast_AP_total_received_events, FaNet_AP_total_received_events);
 
 % ############### Begin of random sleeping schema ##################
 
+scale_total_power_graph(numel(Nodes_list),'One Hop Broadcast', 'FaNet Dissemination Schema', ActPower, FaNetPower);
+
+disp('End of story here');
+
+%{
 % First sleeping schema: every node stay active/sleeping 
 % in random interval from 5 to 15 seconds
 RandPower = scale_run_random_sleep(Nodes_list, Events_list, max_run_time);
@@ -239,8 +219,6 @@ CustPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
 % Drawing power consumption graph
 scale_total_power_graph(numel(Nodes_list),'All Active', 'Random','Customize', ActPower, RandPower, CustPower);
 
-disp(sprintf('Sent Statistics'));
-disp(sentStatistics);
 
 
 scale_draw_events(sentStatistics);
@@ -250,7 +228,7 @@ scale_draw_events(sentStatistics);
 %scale_powerTime_graph(A,NA,RandPowerOvertime, max_run_time,'Random');
 %scale_powerTime_graph(A,NA,CustPowerOvertime, max_run_time,'Customize');
 
-%{
+
 if (lifeTime~=0)
     scale_lifetime_graph('All Active', 'Random','Customize', ActLife, RandLife, CustLife);
     scale_lifeThroughput_graph('All Active', 'Random','Customize', ActLife, RandLife, CustLife,sentStatistics);
