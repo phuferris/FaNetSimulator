@@ -82,7 +82,8 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_
             end
 
             % Check to see if it has any any event from the event queue
-            if(~isempty(event) && event.instant == clock && event.source == k)    
+            if(~isempty(event) && event.instant == clock && event.source == k) 
+                %event.ttl = 8;
                 sentEvents = sentEvents + 1;
                 % record total generated events for each node
                 Nodes_list(k).generated_events = Nodes_list(k).generated_events + 1; 
@@ -99,9 +100,9 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_
         end
     end
 
-    TotPower = scale_power_graph(Nodes_list,'One Hop Broadcast Data Dissemination Schema');
+    TotPower = scale_power_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Schema');
 
-    events_graph_height = scale_events_graph(Nodes_list,'One Hop Broadcast Data Dissemination Events', 0);
+    events_graph_height = scale_events_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Events', 0);
 
     return;
 end

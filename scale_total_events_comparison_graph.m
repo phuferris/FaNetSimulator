@@ -29,31 +29,32 @@ end
 
 % Draw graph to compare 
 
+generated = [broadcast_total_generated_events, fanet_total_generated_events];
 sent = [broadcast_total_sent_events, fanet_total_sent_events];
     
 received = [broadcast_total_received_events, fanet_total_received_events];
 relayed = [broadcast_total_relayed_events, fanet_total_relayed_events];
 duplicated = [broadcast_total_duplicated_events, fanet_total_duplicated_events];
 
+max_generated = max(generated);
 max_sent = max(sent);
 max_received = max(received);
 max_relayed = max(relayed);
 max_duplicated = max(duplicated);
 
 
-height = max([max_sent max_received max_relayed max_duplicated]) + 2;
-
+height = max([max_generated max_sent max_received max_relayed max_duplicated]) + 2;
 
 figure
-myC= [0 0.3 1; 0 0.7 .6; 1 0.6 0.1; 0 0.9 0];
+myC= [0 0.6 0.1; 0 0.3 1; 0 0.7 .6; 1 0.6 0.1; 0 0.9 0];
 
-H = bar(1:2, [sent' received' relayed' duplicated'], 1);
+H = bar(1:2, [generated' sent' received' relayed' duplicated'], 1);
 axis([0 3 0 height]);
 set(gca, 'XTick', 1:2);
 
 % Add title and axis labels
-title('One Hop Broadcast and FaNet Total Events Comparison', 'FontSize', 20);
-xlabel('One Hop Broadcast v.s. FaNet Dissemination', 'FontSize', 14);
+title('Events Comparison', 'FontSize', 20);
+xlabel('Multi Hops Broadcast v.s. FaNet Dissemination', 'FontSize', 14);
 ylabel('Total number of events', 'FontSize', 14)
 
 
@@ -61,7 +62,7 @@ for k=1:4
   set(H(k),'facecolor',myC(k,:))
 end
 
-legend(H, {'Sent Events','Successful Shared Events','Relayed Events','Duplicated Event'}, 'Location','northwest','FontSize',14);
+legend(H, {'Generated Events','Sent Events','Crowd Events','Relayed Events','Duplicated Event'}, 'Location','northwest','FontSize',14);
 
 % Create dissemination rate graph chart
 
@@ -90,9 +91,9 @@ end
 set(gca,'XTick',[1 2]);
 hold off;
 ylim([0, max(get(gca,'Ylim')) + 10]);
-legend('One Hop Broadcast', 'FaNet', 'Location','northwest');
+legend('Multi Hops Broadcast', 'FaNet', 'Location','northwest');
 
-title('One Hop Broadcast and FaNet Local Dissemination Rate', 'FontSize', 20);
+title('Multi Hops Broadcast and FaNet Dissemination Rate', 'FontSize', 20);
     
 xlabel('Dissemination Schema', 'FontSize', 14);
 ylabel('Local Dissemination Rate (%)', 'FontSize', 14);
@@ -123,9 +124,9 @@ end
 set(gca,'XTick',[1 2]);
 hold off;
 ylim([0, max(get(gca,'Ylim')) + 10]);
-legend('One Hop Broadcast', 'FaNet', 'Location','northwest');
+legend('Multi Hops Broadcast', 'FaNet', 'Location','northwest');
 
-title('One Hop Broadcast and FaNet Cloud Delivery Rate', 'FontSize', 20);
+title('Multi Hops Broadcast and FaNet Cloud Delivery Rate', 'FontSize', 20);
     
 xlabel('Dissemination Schema', 'FontSize', 14);
 ylabel('Cloud Delivery Rate (%)', 'FontSize', 14);

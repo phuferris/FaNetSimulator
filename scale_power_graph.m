@@ -4,7 +4,7 @@ figure;
 b=bar([Nodes_list.id],[Nodes_list.power], 'g');
 set(gca, 'XTick', [Nodes_list.id]);
 
-title(['Node Bettery Power Level ', protocol], 'FontSize', 20);
+title([protocol, ' Power Consumption'], 'FontSize', 20);
     
 xlabel('Node ID');
 ylabel('Power (mAh)');

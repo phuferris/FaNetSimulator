@@ -7,7 +7,6 @@ function scale_total_power_graph(k,protocol1,protocol2,TotPower1,TotPower2)
 
     total_network_battery_power = initial_power*k;
     
-    percentages = [];
     for n = 1:2   
         percent = (total_network_battery_power - TotPower(n))/total_network_battery_power;
         percent = round(percent, 2)*100;
@@ -27,10 +26,10 @@ function scale_total_power_graph(k,protocol1,protocol2,TotPower1,TotPower2)
     hold off;
     legend(protocol1,protocol2);
 
-    title('Network Total Power Comsumption Comparison', 'FontSize', 20);
+    title('Network Power Comsumption Comparison', 'FontSize', 20);
 
-    xlabel('One Hop Broadcast v.s. FaNet Dissemination Schema', 'FontSize', 14);
-    ylabel('Percent of Network Power Consumption');
+    xlabel('Multi Hops Broadcast v.s. FaNet Dissemination', 'FontSize', 14);
+    ylabel('Percent of Power Consumption (%)');
     
     figure;
     colormap summer;
@@ -38,10 +37,10 @@ function scale_total_power_graph(k,protocol1,protocol2,TotPower1,TotPower2)
     percent = (total_network_battery_power - TotPower(1))/total_network_battery_power;
     percent = round(percent, 2)*100;
     
-    labels = {'Network Power Remain', 'Network Power Consumed'};
+    labels = {'Remained', 'Consumed'};
     ax1 = subplot(1,2,1);
     pie3(ax1, [(100 - percent), percent], labels);
-    title(ax1,'One Hop Broadcast Share', 'FontSize', 18);
+    title(ax1,'Multi Hops Broadcast Share', 'FontSize', 18);
     
     percent = (total_network_battery_power - TotPower(2))/total_network_battery_power;
     percent = round(percent, 2)*100;

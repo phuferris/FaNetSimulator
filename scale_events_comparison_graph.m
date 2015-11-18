@@ -44,6 +44,6 @@ ylabel('Number of events')
 set(H(1),'facecolor',myColor(1,:));
 set(H(2),'facecolor',myColor(2,:));
 
-legend(H, {'One Hop Broadcast Node','FaNet Node'}, 'Location','Best','FontSize',12);
+legend(H, {'Multi Hops Broadcast Node','FaNet Node'}, 'Location','Best','FontSize',12);
 
 return;

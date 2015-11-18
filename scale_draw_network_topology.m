@@ -30,7 +30,7 @@ end
 
 hold off;
 
-title('One Hop Broadcast Data Dissemination Network Topology', 'FontSize', 20);
+title('Multi Hops Broadcast Network Topology', 'FontSize', 20);
     
 xlabel('X Coordinate');
 ylabel('Y Coordinate');

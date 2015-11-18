@@ -123,7 +123,7 @@ Events_list = scale_generate_initial_events(Events_list, numNodes, maxEvents, ev
 % be sent to its access points, every while loop will count as 
 % 1 second of sensors' clock.
 
-max_run_time = 50;
+max_run_time = 45;
 
 % ################### Begin of all active schema ####################
 
@@ -143,98 +143,15 @@ scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
 FaNet_AP_total_received_events = scale_get_events_arrived_at_APs(APs_list);
 
 % Display simulation data
-scale_events_comparison_graph(Nodes_list, Nodes_list_FaNet, 'duplicated', 'One Hop Broadcast and FatNet Disseminated Duplicated Messages Comparison');
+scale_events_comparison_graph(Nodes_list, Nodes_list_FaNet, 'duplicated', 'Multi Hops Broadcast and FatNet Disseminated Duplicated Messages Comparison');
 
 scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet, ...
                                     broadcast_AP_total_received_events, FaNet_AP_total_received_events);
 
 % ############### Begin of random sleeping schema ##################
 
-scale_total_power_graph(numel(Nodes_list),'One Hop Broadcast', 'FaNet Dissemination Schema', ActPower, FaNetPower);
+scale_total_power_graph(numel(Nodes_list),'Multi Hops Broadcast', 'FaNet Dissemination', ActPower, FaNetPower);
 
-scale_draw_event_spreading(Nodes_list, maxx, maxy, 'One Hop Dissemination');
+scale_draw_event_spreading(Nodes_list, maxx, maxy, 'Multi Hops Dissemination');
 scale_draw_event_spreading(Nodes_list_FaNet, maxx, maxy, 'FaNet Dissemination');
 
-disp('End of story here');
-
-%{
-% First sleeping schema: every node stay active/sleeping 
-% in random interval from 5 to 15 seconds
-RandPower = scale_run_random_sleep(Nodes_list, Events_list, max_run_time);
-RandLife = lifeTime;
-RandDuty = 0; 
-
-
-scale_get_events_arrived_at_APs();
-sentStatistics.random_sentEvent = sentEvents;
-sentStatistics.random_forwardedEvents = forwardedEvents;
-sentStatistics.random_totalReceived = totalReceived;
-
-% Compute average duty cycle for Random sleeping Scheme
-if (RandLife~=0)
-    RandDuty=floor(sum(activeTime)/numNodes/RandLife*100);
-elseif(RandLife==0)
-    RandDuty=floor(sum(activeTime)/numNodes/max_run_time*100);
-    RandLife=max_run_time;
-end
-
-%prepare for power over time plot
-%nodes with APs
-RandPowerOvertime(1,:)=powerOvertime(A(1),:);
-RandPowerOvertime(2,:)=powerOvertime(A(numel(A)),:);
-%nodes without APs
-RandPowerOvertime(3,:)=powerOvertime(NA(1),:);
-RandPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
-
-% ################# End of random sleeping schema ##################
-
-% ################### Begin of optimized schema ####################
-
-% Optimized sleeping schema with Marko Chain
-CustPower = scale_run_custom_sleep(Nodes_list, Events_list, max_run_time, prob_sleeping);
-CustLife = lifeTime;
-CustDuty = 0;
-
-
-scale_get_events_arrived_at_APs();
-sentStatistics.cust_sentEvent = sentEvents;
-sentStatistics.cust_forwardedEvents = forwardedEvents;
-sentStatistics.cust_totalReceived = totalReceived;
-
-% Compute average duty cycle for Random sleeping Scheme
-if (CustLife ~= 0)
-    CustDuty=floor(sum(activeTime)/numNodes/CustLife*100);
-elseif(CustLife==0)
-    CustDuty=floor(sum(activeTime)/numNodes/max_run_time*100);
-    CustLife=max_run_time;
-end
-
-%prepare for power over time plot
-%nodes with APs
-CustPowerOvertime(1,:)=powerOvertime(A(1),:);
-CustPowerOvertime(2,:)=powerOvertime(A(numel(A)),:);
-%nodes without APs
-CustPowerOvertime(3,:)=powerOvertime(NA(1),:);
-CustPowerOvertime(4,:)=powerOvertime(NA(numel(NA)),:);
-
-% ################### End of optimized schema ####################
-
-% Drawing power consumption graph
-scale_total_power_graph(numel(Nodes_list),'All Active', 'Random','Customize', ActPower, RandPower, CustPower);
-
-
-
-scale_draw_events(sentStatistics);
-%scale_percent_compare(numel(Nodes_list),'All Active', 'Random','Customize', ActPower, RandPower, CustPower, sentStatistics);
-
-%scale_powerTime_graph(A,NA,ActPowerOvertime, max_run_time, 'All Active'); 
-%scale_powerTime_graph(A,NA,RandPowerOvertime, max_run_time,'Random');
-%scale_powerTime_graph(A,NA,CustPowerOvertime, max_run_time,'Customize');
-
-
-if (lifeTime~=0)
-    scale_lifetime_graph('All Active', 'Random','Customize', ActLife, RandLife, CustLife);
-    scale_lifeThroughput_graph('All Active', 'Random','Customize', ActLife, RandLife, CustLife,sentStatistics);
-    scale_dutyLifetime_graph('All Active', 'Random','Customize', ActLife, RandLife, CustLife, ActDuty, RandDuty, CustDuty);
-end
-%}

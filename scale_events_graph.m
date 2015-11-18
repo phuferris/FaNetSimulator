@@ -8,8 +8,8 @@ relayed_events = [];
 for k=1:numel(Nodes_list)
     generated_events = [generated_events, Nodes_list(k).generated_events];
     sent_events = [sent_events, Nodes_list(k).sent_events];
-    received_events = [received_events, Nodes_list(k).received_events];
     relayed_events = [relayed_events, Nodes_list(k).relayed_events];
+    received_events = [received_events, Nodes_list(k).received_events];
 end
 
 if height == 0
@@ -42,6 +42,6 @@ for k=1:4
   set(H(k),'facecolor',myC(k,:))
 end
 
-legend(H, {'Generated Events','Sent Events','Relayed Events','Successful Shared Events'}, 'Location','northwest','FontSize',14);
+legend(H, {'Generated Events','Sent Events','Relayed Events','Crowd events'}, 'Location','northwest','FontSize',14);
 
 return;

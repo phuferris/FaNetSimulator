@@ -53,7 +53,7 @@ end
 
 hold off;
 
-title('FaNet Data Dissemination Network Topology');
+title('FaNet Data Dissemination Network Topology', 'FontSize', 20);
     
 xlabel('X Coordinate');
 ylabel('Y Coordinate');
