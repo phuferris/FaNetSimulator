@@ -123,35 +123,91 @@ Events_list = scale_generate_initial_events(Events_list, numNodes, maxEvents, ev
 % be sent to its access points, every while loop will count as 
 % 1 second of sensors' clock.
 
+Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
+scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
+
 max_run_time = 45;
 
 % ################### Begin of all active schema ####################
 
-% First sleeping schema: every node stay awake
-[Nodes_list, ActPower, events_graph_height] = scale_run_all_active(Nodes_list, Events_list, max_run_time);
+run_data = [];
+for n=1:10
+    temp_nodes_list = Nodes_list;
+    temp_nodes_list_fanet = Nodes_list_FaNet;
+    
+    % First sleeping schema: every node stay awake
+    [temp_nodes_list] = scale_run_all_active(temp_nodes_list, n, max_run_time);
+    % Run the FaNet data dissemination schema here
+    [temp_nodes_list_fanet] = scale_run_FaNet(temp_nodes_list_fanet, n, max_run_time);
+    if n == 5
+        scale_total_events_comparison_graph(temp_nodes_list, temp_nodes_list_fanet);
+    end
 
-broadcast_AP_total_received_events = scale_get_events_arrived_at_APs(APs_list);
+    run_data = scale_collect_data(run_data, temp_nodes_list, temp_nodes_list_fanet, n);
+end
+
+broadcast_received_events = [];
+fanet_received_events = [];
+
+broadcast_dup_events = [];
+fanet_dup_events = [];
+
+broadcast_remained_power = [];
+fanet_remained_power = [];
 
 
-Nodes_list_FaNet = scale_FaNet_build_topology(Nodes_list_FaNet);
+for k=1:numel(run_data)
+    broadcast_received_events = [broadcast_received_events, run_data(k).broadcast.ave_received];
+    fanet_received_events = [fanet_received_events, run_data(k).fanet.ave_received];
+    
+    broadcast_dup_events = [broadcast_dup_events, run_data(k).broadcast.ave_dup];
+    fanet_dup_events = [fanet_dup_events, run_data(k).fanet.ave_dup];
+    
+    broadcast_remained_power = [broadcast_remained_power, run_data(k).broadcast.ave_power];
+    fanet_remained_power = [fanet_remained_power, run_data(k).fanet.ave_power];
+end
 
-scale_draw_FaNet_topology(Nodes_list_FaNet, APs_list, maxx, maxy);
+eb = 1:10;
 
-% Run the FaNet data dissemination schema here
-[Nodes_list_FaNet, FaNetPower, events_graph_height] = scale_run_FaNet(Nodes_list_FaNet, Events_list, max_run_time, events_graph_height);
+% Average received messages per node
+figure
+semilogy(eb, broadcast_received_events, 'bo-');
+hold on
+semilogy(eb, fanet_received_events, 'r^-');
 
-FaNet_AP_total_received_events = scale_get_events_arrived_at_APs(APs_list);
 
-% Display simulation data
-scale_events_comparison_graph(Nodes_list, Nodes_list_FaNet, 'duplicated', 'Multi Hops Broadcast and FatNet Disseminated Duplicated Messages Comparison');
+% Add title and axis labels
+title('Average Received Packages Per Node', 'FontSize', 20)
+xlabel('number of hops', 'FontSize', 14)
+ylabel('Number of Packages', 'FontSize', 14)
+legend({'Broadcast','FaNet'}, 'FontSize', 14);
 
-scale_total_events_comparison_graph(Nodes_list, Nodes_list_FaNet, ...
-                                    broadcast_AP_total_received_events, FaNet_AP_total_received_events);
 
-% ############### Begin of random sleeping schema ##################
+% Average duplicated per node
+figure
+semilogy(eb, broadcast_dup_events, 'b^-');
+hold on
+semilogy(eb, fanet_dup_events, 'g^-');
 
-scale_total_power_graph(numel(Nodes_list),'Multi Hops Broadcast', 'FaNet Dissemination', ActPower, FaNetPower);
 
-scale_draw_event_spreading(Nodes_list, maxx, maxy, 'Multi Hops Dissemination');
-scale_draw_event_spreading(Nodes_list_FaNet, maxx, maxy, 'FaNet Dissemination');
+% Add title and axis labels
+title('Average Duplicated Packages Per Node', 'FontSize', 20)
+xlabel('Number of hops', 'FontSize', 14)
+ylabel('Number of packages', 'FontSize', 14)
+
+legend({'Broadcast','FaNet'}, 'FontSize', 14);
+
+
+% Average Consumed Power
+figure
+semilogy(eb, broadcast_remained_power, 'c^-');
+hold on
+semilogy(eb, fanet_remained_power, 'r^-');
+
+% Add title and axis labels
+title('Average Power Consumption Per Node', 'FontSize', 20)
+xlabel('number of hops', 'FontSize', 14)
+ylabel('Power (mAh)', 'FontSize', 14)
+
+legend({'Broadcast','FaNet'}, 'FontSize', 14);
 

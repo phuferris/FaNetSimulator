@@ -1,4 +1,4 @@
-function [Nodes_list, TotPower, events_graph_height]=scale_run_FaNet(Nodes_list, Events_list, max_run_time, events_graph_height)
+function [Nodes_list]=scale_run_FaNet(Nodes_list, ttl, max_run_time)
     % Simulate SCALE network when all nodes are kept active
 
     global sentEvents;
@@ -22,7 +22,8 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_FaNet(Nodes_list,
     powerOvertime=zeros(numNodes,1+floor(max_run_time/timeInterval));
     powerOvertime(:,1)=initial_power;
     countInterval=1;
-
+    
+    event_id = 1;
 
     while 1
         clock = clock + 1;
@@ -38,9 +39,6 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_FaNet(Nodes_list,
         if (clock > max_run_time)
             break;
         end
-
-        events = [];
-        events = scale_get_events(Events_list, events, clock);
 
         %keep track of time interval
         if(mod(clock,timeInterval)==0)
@@ -60,38 +58,31 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_FaNet(Nodes_list,
             action.time = 1;
             Nodes_list(k).power = scale_power_consumption(Nodes_list(k).power, action);
             
-           % Check to see if it has any event to send
-           event = [];
-           if ~isempty(events)
-               event_index = find([events(:).source] == k, 1);
-               if ~isempty(event_index)
-                   event = events(event_index); 
-               end
-           end
+           % Assume that an earthquake occurs at clock = 5;
+            if clock == 5
+                event = [];
+                event.id = event_id;
+                event.ttl = ttl + 1;
+                event.source = k;
+                event.from_node = event.source;
+                event.originator = event.source;
+                event.destination = 99999; % address of remote server on the cloud
+                event.instant = clock;
+                event.size = 1*100*8; % 100 kb max
+                event.recieved_time = clock;
 
-           % Check to see if it has any any event from the event queue
-           if(~isempty(event) && event.instant == clock && event.source == k)
-               % record total generated events for each node
-               Nodes_list(k).generated_events = Nodes_list(k).generated_events + 1; 
-               
-               Nodes_list = disseminate_event(Nodes_list, event); 
-
-           else % Check to see if the node has any event being buffered
-               if(~isempty(Nodes_list(k).buffer))
-                   buffered_event = Nodes_list(k).buffer(1); % pick to the oldest event  
-                   Nodes_list(k).buffer(1) = []; % remove sent event from buffer
-            
-                   Nodes_list = disseminate_event(Nodes_list, buffered_event);
-               end
-           end
-
+                Nodes_list(k).generated_events = 1; 
+                Nodes_list = disseminate_event(Nodes_list, event);
+                
+                
+                event_id = event_id + 1;
+            end
         end
     end
 
-    TotPower=scale_power_graph(Nodes_list, 'FaNet Data Dissemination Schema');
-    
-    events_graph_height = scale_events_graph(Nodes_list,'FaNet Data Dissemination Events', events_graph_height);
-    
+    %TotPower=scale_power_graph(Nodes_list, 'FaNet Data Dissemination Schema');
+    %events_graph_height = scale_events_graph(Nodes_list,'FaNet Data Dissemination Events', events_graph_height);
+ 
     return;
 end
     
@@ -183,6 +174,7 @@ function [Nodes_list] = disseminate_event(Nodes_list, event)
                     event.ttl = event.ttl - 1;
                 end
                 
+                event.recieved_time = event.recieved_time +1;
                 Nodes_list = disseminate_event(Nodes_list, event);
                 
                 action = [];
@@ -217,6 +209,7 @@ function [Nodes_list] = disseminate_event(Nodes_list, event)
                     event.ttl = event.ttl - 1;
                 end    
                 
+                event.recieved_time = event.recieved_time +1;
                 Nodes_list = disseminate_event(Nodes_list, event);
                 
                 action = [];

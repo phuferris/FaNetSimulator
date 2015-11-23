@@ -1,4 +1,4 @@
-function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_list, Events_list, max_run_time)
+function [Nodes_list]=scale_run_all_active(Nodes_list, ttl, max_run_time)
     % Simulate SCALE network when all nodes are kept active
 
     global sentEvents;
@@ -24,6 +24,8 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_
     powerOvertime=zeros(numNodes,1+floor(max_run_time/timeInterval));
     powerOvertime(:,1)=initial_power;
     countInterval=1;
+    
+    event_id = 1;
 
     % Loop until clock is reach 
     % the maximum run time thredhold
@@ -41,9 +43,6 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_
         if (clock > max_run_time)
             break;
         end
-
-        events = [];
-        events = scale_get_events(Events_list, events, clock);
 
         %keep track of time interval
             if(mod(clock,timeInterval)==0)
@@ -73,36 +72,29 @@ function [Nodes_list, TotPower, events_graph_height]=scale_run_all_active(Nodes_
                 Nodes_list(k).power = scale_power_consumption(Nodes_list(k).power, action);
             end
 
-            event = [];
-            if ~isempty(events)
-                event_index = find([events(:).source] == k, 1);
-                if ~isempty(event_index)
-                   event = events(event_index); 
-                end
+            % Assume that an earthquake occurs at clock = 5;
+            if clock == 5
+                event = [];
+                event.id = event_id;
+                event.recieved_time = clock;
+                event.ttl = ttl;
+                event.source = k;
+                event.from_node = event.source;
+                event.originator = event.source;
+                event.destination = 99999; % address of remote server on the cloud
+                event.instant = clock;
+                event.size = 1*100*8; % 100 kb max
+                
+                Nodes_list(k).generated_events = 1; 
+                Nodes_list = scale_send_event(Nodes_list, event);
+                event_id = event_id + 1;
             end
-
-            % Check to see if it has any any event from the event queue
-            if(~isempty(event) && event.instant == clock && event.source == k) 
-                %event.ttl = 8;
-                sentEvents = sentEvents + 1;
-                % record total generated events for each node
-                Nodes_list(k).generated_events = Nodes_list(k).generated_events + 1; 
-                Nodes_list = scale_send_event(Nodes_list, event); 
-
-            % Check to see if there is any event in the buffer to be sent    
-            else
-                if(~isempty(Nodes_list(k).buffer))
-                   buffered_event = Nodes_list(k).buffer(1); % pick to the oldest event
-                   Nodes_list(k).buffer(1) = []; % remove sent event from buffer
-                   Nodes_list = scale_send_event(Nodes_list, buffered_event);
-                end
-            end   
         end
     end
 
-    TotPower = scale_power_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Schema');
-
-    events_graph_height = scale_events_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Events', 0);
+   
+    %TotPower = scale_power_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Schema');
+    %events_graph_height = scale_events_graph(Nodes_list,'Multi Hops Broadcast Data Dissemination Events', 0);
 
     return;
 end

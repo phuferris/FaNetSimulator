@@ -9,17 +9,15 @@ function [Nodes_list] = scale_send_to_all_neighbors(Nodes_list, event)
        return; 
     end
     
+
+    event.ttl = event.ttl - 1;
+    event.recieved_time = event.recieved_time + 1;
+    
     neighbors = Nodes_list(event.source).neighbors;
     
     %disp(sprintf('EVENT with message id# %d FORWARDED TO Neighbor ID %d', neighbor_id, event.id));
     for k=1:numel(neighbors)
         neighbor_id = neighbors(k).id;
-        
-        % receiving node get its own event
-        if event.originator == event.source
-            Nodes_list(event.source).duplicated_events =  Nodes_list(event.source).duplicated_events + 1;
-            continue;
-        end
         
         %record total replayed_events
         Nodes_list(event.source).relayed_events = Nodes_list(event.source).relayed_events + 1; 
